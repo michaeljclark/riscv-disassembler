@@ -719,7 +719,10 @@ static const char *csr_name(int csrno)
     case 0x0383: return "mibound";
     case 0x0384: return "mdbase";
     case 0x0385: return "mdbound";
-    case 0x03a0: return "pmpcfg3";
+    case 0x03a0: return "pmpcfg0";
+    case 0x03a1: return "pmpcfg1";
+    case 0x03a2: return "pmpcfg2";
+    case 0x03a3: return "pmpcfg3";
     case 0x03b0: return "pmpaddr0";
     case 0x03b1: return "pmpaddr1";
     case 0x03b2: return "pmpaddr2";
