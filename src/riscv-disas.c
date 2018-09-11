@@ -2089,7 +2089,7 @@ static bool check_constraints(rv_decode *dec, const rvc_constraint *c)
 
 /* instruction length */
 
-static size_t inst_length(rv_inst inst)
+size_t inst_length(rv_inst inst)
 {
     /* NOTE: supports maximum instruction size of 64-bits */
 
