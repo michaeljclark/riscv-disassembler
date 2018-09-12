@@ -2,6 +2,7 @@ RISCV_PREFIX ?= riscv64-unknown-elf-
 RISCV_DISAS_OBJ = build/obj/riscv-disas.o
 RISCV_DISAS_LIB = build/lib/riscv-disas.a
 
+CFLAGS = -O2
 PROGRAMS = build/bin/test-disas build/bin/test-encode
 TESTS = build/tests/minimal-test.txt
 
