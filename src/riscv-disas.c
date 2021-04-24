@@ -2187,12 +2187,11 @@ static void decode_inst_lift_pseudo(rv_decode *dec)
 
 /* format instruction */
 
-static void append(char *s1, const char *s2, ssize_t n)
+static char *append(char *buf, const char *src, const char *end)
 {
-    ssize_t l1 = strlen(s1);
-    if (n - l1 - 1 > 0) {
-        strncat(s1, s2, n - l1);
-    }
+    while (buf < end && *src)
+	*buf++ = *src++;
+    return buf;
 }
 
 #define INST_FMT_2 "%04" PRIx64 "              "
@@ -2204,20 +2203,22 @@ static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *
 {
     char tmp[64];
     const char *fmt;
+    const char *start = buf;
+    const char *end = &buf[buflen];
 
     size_t len = inst_length(dec->inst);
     switch (len) {
     case 2:
-        snprintf(buf, buflen, INST_FMT_2, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_2, dec->inst);
         break;
     case 4:
-        snprintf(buf, buflen, INST_FMT_4, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_4, dec->inst);
         break;
     case 6:
-        snprintf(buf, buflen, INST_FMT_6, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_6, dec->inst);
         break;
     default:
-        snprintf(buf, buflen, INST_FMT_8, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_8, dec->inst);
         break;
     }
 
@@ -2225,132 +2226,132 @@ static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *
     while (*fmt) {
         switch (*fmt) {
         case 'O':
-            append(buf, opcode_data[dec->op].name, buflen);
+            buf = append(buf, opcode_data[dec->op].name, end);
             break;
         case '(':
-            append(buf, "(", buflen);
+            buf = append(buf, "(", end);
             break;
         case ',':
-            append(buf, ",", buflen);
+            buf = append(buf, ",", end);
             break;
         case ')':
-            append(buf, ")", buflen);
+            buf = append(buf, ")", end);
             break;
         case '0':
-            append(buf, rv_ireg_name_sym[dec->rd], buflen);
+            buf = append(buf, rv_ireg_name_sym[dec->rd], end);
             break;
         case '1':
-            append(buf, rv_ireg_name_sym[dec->rs1], buflen);
+            buf = append(buf, rv_ireg_name_sym[dec->rs1], end);
             break;
         case '2':
-            append(buf, rv_ireg_name_sym[dec->rs2], buflen);
+            buf = append(buf, rv_ireg_name_sym[dec->rs2], end);
             break;
         case '3':
-            append(buf, rv_freg_name_sym[dec->rd], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rd], end);
             break;
         case '4':
-            append(buf, rv_freg_name_sym[dec->rs1], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rs1], end);
             break;
         case '5':
-            append(buf, rv_freg_name_sym[dec->rs2], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rs2], end);
             break;
         case '6':
-            append(buf, rv_freg_name_sym[dec->rs3], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rs3], end);
             break;
         case '7':
             snprintf(tmp, sizeof(tmp), "%d", dec->rs1);
-            append(buf, tmp, buflen);
+            buf = append(buf, tmp, end);
             break;
         case 'i':
             snprintf(tmp, sizeof(tmp), "%d", dec->imm);
-            append(buf, tmp, buflen);
+            buf = append(buf, tmp, end);
             break;
         case 'o':
             snprintf(tmp, sizeof(tmp), "%d", dec->imm);
-            append(buf, tmp, buflen);
-            while (strlen(buf) < tab * 2) {
-                append(buf, " ", buflen);
+            buf = append(buf, tmp, end);
+            while (buf < &start[2*tab]) {
+                *buf++ = ' ';
             }
             snprintf(tmp, sizeof(tmp), "# 0x%" PRIx64,
                 dec->pc + dec->imm);
-            append(buf, tmp, buflen);
+            buf = append(buf, tmp, end);
             break;
         case 'c': {
             const char *name = csr_name(dec->imm & 0xfff);
             if (name) {
-                append(buf, name, buflen);
+                buf = append(buf, name, end);
             } else {
                 snprintf(tmp, sizeof(tmp), "0x%03x", dec->imm & 0xfff);
-                append(buf, tmp, buflen);
+                buf = append(buf, tmp, end);
             }
             break;
         }
         case 'r':
             switch (dec->rm) {
             case rv_rm_rne:
-                append(buf, "rne", buflen);
+                buf = append(buf, "rne", end);
                 break;
             case rv_rm_rtz:
-                append(buf, "rtz", buflen);
+                buf = append(buf, "rtz", end);
                 break;
             case rv_rm_rdn:
-                append(buf, "rdn", buflen);
+                buf = append(buf, "rdn", end);
                 break;
             case rv_rm_rup:
-                append(buf, "rup", buflen);
+                buf = append(buf, "rup", end);
                 break;
             case rv_rm_rmm:
-                append(buf, "rmm", buflen);
+                buf = append(buf, "rmm", end);
                 break;
             case rv_rm_dyn:
-                append(buf, "dyn", buflen);
+                buf = append(buf, "dyn", end);
                 break;
             default:
-                append(buf, "inv", buflen);
+                buf = append(buf, "inv", end);
                 break;
             }
             break;
         case 'p':
             if (dec->pred & rv_fence_i) {
-                append(buf, "i", buflen);
+                buf = append(buf, "i", end);
             }
             if (dec->pred & rv_fence_o) {
-                append(buf, "o", buflen);
+                buf = append(buf, "o", end);
             }
             if (dec->pred & rv_fence_r) {
-                append(buf, "r", buflen);
+                buf = append(buf, "r", end);
             }
             if (dec->pred & rv_fence_w) {
-                append(buf, "w", buflen);
+                buf = append(buf, "w", end);
             }
             break;
         case 's':
             if (dec->succ & rv_fence_i) {
-                append(buf, "i", buflen);
+                buf = append(buf, "i", end);
             }
             if (dec->succ & rv_fence_o) {
-                append(buf, "o", buflen);
+                buf = append(buf, "o", end);
             }
             if (dec->succ & rv_fence_r) {
-                append(buf, "r", buflen);
+                buf = append(buf, "r", end);
             }
             if (dec->succ & rv_fence_w) {
-                append(buf, "w", buflen);
+                buf = append(buf, "w", end);
             }
             break;
         case '\t':
-            while (strlen(buf) < tab) {
-                append(buf, " ", buflen);
+            while (buf < &start[tab]) {
+                *buf++ = ' ';
             }
             break;
         case 'A':
             if (dec->aq) {
-                append(buf, ".aq", buflen);
+                buf = append(buf, ".aq", end);
             }
             break;
         case 'R':
             if (dec->rl) {
-                append(buf, ".rl", buflen);
+                buf = append(buf, ".rl", end);
             }
             break;
         default:
@@ -2358,6 +2359,7 @@ static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *
         }
         fmt++;
     }
+    *buf = '\0';
 }
 
 /* instruction length */
