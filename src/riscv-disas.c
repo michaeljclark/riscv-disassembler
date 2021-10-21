@@ -2053,7 +2053,7 @@ static void append(char *s1, const char *s2, size_t n)
 #define INST_FMT_6 "%012" PRIx64 "      "
 #define INST_FMT_8 "%016" PRIx64 "  "
 
-static void format_inst(char *buf, size_t buflen, size_t tab, rv_decode *dec)
+static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *dec)
 {
     char tmp[64];
     const char *fmt;
@@ -2262,5 +2262,5 @@ void disasm_inst(char *buf, size_t buflen, rv_isa isa, uint64_t pc, rv_inst inst
     decode_inst_operands(&dec);
     decode_inst_decompress(&dec, isa);
     decode_inst_lift_pseudo(&dec);
-    format_inst(buf, buflen, 32, &dec);
+    decode_inst_format(buf, buflen, 32, &dec);
 }
