@@ -2233,35 +2233,14 @@ static void decode_inst_lift_pseudo(rv_decode *dec)
 
 /* decompress instruction */
 
-static void decompress_inst_rv32(rv_decode *dec)
+static void decode_inst_decompress(rv_decode *dec, rv_isa isa)
 {
-    int decomp_op = opcode_data[dec->op].decomp_rv32;
-    if (decomp_op != rv_op_illegal) {
-        if ((opcode_data[dec->op].decomp_data & rvcd_imm_nz) && dec->imm == 0) {
-            dec->op = rv_op_illegal;
-        } else {
-            dec->op = decomp_op;
-            dec->codec = opcode_data[decomp_op].codec;
-        }
+    int decomp_op;
+    switch (isa) {
+    case rv32: decomp_op = opcode_data[dec->op].decomp_rv32; break;
+    case rv64: decomp_op = opcode_data[dec->op].decomp_rv64; break;
+    case rv128: decomp_op = opcode_data[dec->op].decomp_rv128; break;
     }
-}
-
-static void decompress_inst_rv64(rv_decode *dec)
-{
-    int decomp_op = opcode_data[dec->op].decomp_rv64;
-    if (decomp_op != rv_op_illegal) {
-        if ((opcode_data[dec->op].decomp_data & rvcd_imm_nz) && dec->imm == 0) {
-            dec->op = rv_op_illegal;
-        } else {
-            dec->op = decomp_op;
-            dec->codec = opcode_data[decomp_op].codec;
-        }
-    }
-}
-
-static void decompress_inst_rv128(rv_decode *dec)
-{
-    int decomp_op = opcode_data[dec->op].decomp_rv128;
     if (decomp_op != rv_op_illegal) {
         if ((opcode_data[dec->op].decomp_data & rvcd_imm_nz) && dec->imm == 0) {
             dec->op = rv_op_illegal;
@@ -2281,11 +2260,7 @@ void disasm_inst(char *buf, size_t buflen, rv_isa isa, uint64_t pc, rv_inst inst
     dec.inst = inst;
     decode_inst_opcode(&dec, isa);
     decode_inst_operands(&dec);
-    switch (isa) {
-    case rv32: decompress_inst_rv32(&dec); break;
-    case rv64: decompress_inst_rv64(&dec); break;
-    case rv128: decompress_inst_rv128(&dec); break;
-    }
+    decode_inst_decompress(&dec, isa);
     decode_inst_lift_pseudo(&dec);
     format_inst(buf, buflen, 32, &dec);
 }
