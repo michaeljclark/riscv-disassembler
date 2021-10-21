@@ -1984,6 +1984,26 @@ static void decode_inst_operands(rv_decode *dec)
     };
 }
 
+/* decompress instruction */
+
+static void decode_inst_decompress(rv_decode *dec, rv_isa isa)
+{
+    int decomp_op;
+    switch (isa) {
+    case rv32: decomp_op = opcode_data[dec->op].decomp_rv32; break;
+    case rv64: decomp_op = opcode_data[dec->op].decomp_rv64; break;
+    case rv128: decomp_op = opcode_data[dec->op].decomp_rv128; break;
+    }
+    if (decomp_op != rv_op_illegal) {
+        if ((opcode_data[dec->op].decomp_data & rvcd_imm_nz) && dec->imm == 0) {
+            dec->op = rv_op_illegal;
+        } else {
+            dec->op = decomp_op;
+            dec->codec = opcode_data[decomp_op].codec;
+        }
+    }
+}
+
 /* check constraint */
 
 static bool check_constraints(rv_decode *dec, const rvc_constraint *c)
@@ -2017,25 +2037,22 @@ static bool check_constraints(rv_decode *dec, const rvc_constraint *c)
     return true;
 }
 
-/* instruction length */
+/* lift instruction to pseudo-instruction */
 
-size_t inst_length(rv_inst inst)
+static void decode_inst_lift_pseudo(rv_decode *dec)
 {
-    /* NOTE: supports maximum instruction size of 64-bits */
-
-    /* instruction length coding
-     *
-     *      aa - 16 bit aa != 11
-     *   bbb11 - 32 bit bbb != 111
-     *  011111 - 48 bit
-     * 0111111 - 64 bit
-     */
-
-    return (inst &      0b11) != 0b11      ? 2
-         : (inst &   0b11100) != 0b11100   ? 4
-         : (inst &  0b111111) == 0b011111  ? 6
-         : (inst & 0b1111111) == 0b0111111 ? 8
-         : 0;
+    const rv_comp_data *comp_data = opcode_data[dec->op].pseudo;
+    if (!comp_data) {
+        return;
+    }
+    while (comp_data->constraints) {
+        if (check_constraints(dec, comp_data->constraints)) {
+            dec->op = comp_data->op;
+            dec->codec = opcode_data[dec->op].codec;
+            return;
+        }
+        comp_data++;
+    }
 }
 
 /* format instruction */
@@ -2213,42 +2230,25 @@ static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *
     }
 }
 
-/* lift instruction to pseudo-instruction */
+/* instruction length */
 
-static void decode_inst_lift_pseudo(rv_decode *dec)
+size_t inst_length(rv_inst inst)
 {
-    const rv_comp_data *comp_data = opcode_data[dec->op].pseudo;
-    if (!comp_data) {
-        return;
-    }
-    while (comp_data->constraints) {
-        if (check_constraints(dec, comp_data->constraints)) {
-            dec->op = comp_data->op;
-            dec->codec = opcode_data[dec->op].codec;
-            return;
-        }
-        comp_data++;
-    }
-}
+    /* NOTE: supports maximum instruction size of 64-bits */
 
-/* decompress instruction */
+    /* instruction length coding
+     *
+     *      aa - 16 bit aa != 11
+     *   bbb11 - 32 bit bbb != 111
+     *  011111 - 48 bit
+     * 0111111 - 64 bit
+     */
 
-static void decode_inst_decompress(rv_decode *dec, rv_isa isa)
-{
-    int decomp_op;
-    switch (isa) {
-    case rv32: decomp_op = opcode_data[dec->op].decomp_rv32; break;
-    case rv64: decomp_op = opcode_data[dec->op].decomp_rv64; break;
-    case rv128: decomp_op = opcode_data[dec->op].decomp_rv128; break;
-    }
-    if (decomp_op != rv_op_illegal) {
-        if ((opcode_data[dec->op].decomp_data & rvcd_imm_nz) && dec->imm == 0) {
-            dec->op = rv_op_illegal;
-        } else {
-            dec->op = decomp_op;
-            dec->codec = opcode_data[decomp_op].codec;
-        }
-    }
+    return (inst &      0b11) != 0b11      ? 2
+         : (inst &   0b11100) != 0b11100   ? 4
+         : (inst &  0b111111) == 0b011111  ? 6
+         : (inst & 0b1111111) == 0b0111111 ? 8
+         : 0;
 }
 
 /* disassemble instruction */
