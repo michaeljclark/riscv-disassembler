@@ -933,36 +933,12 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
     case 0:
         switch (((inst >> 13) & 0b111)) {
         case 0: op = rv_op_c_addi4spn; break;
-        case 1:
-            if (isa == rv128) {
-                op = rv_op_c_lq;
-            } else {
-                op = rv_op_c_fld;
-            }
-            break;
+        case 1: op = (isa == rv128) ? rv_op_c_lq : rv_op_c_fld; break;
         case 2: op = rv_op_c_lw; break;
-        case 3:
-            if (isa == rv32) {
-                op = rv_op_c_flw;
-            } else {
-                op = rv_op_c_ld;
-            }
-            break;
-        case 5:
-            if (isa == rv128) {
-                op = rv_op_c_sq;
-            } else {
-                op = rv_op_c_fsd;
-            }
-            break;
+        case 3: op = (isa == rv32) ? rv_op_c_flw : rv_op_c_ld; break;
+        case 5: op = (isa == rv128) ? rv_op_c_sq : rv_op_c_fsd; break;
         case 6: op = rv_op_c_sw; break;
-        case 7:
-            if (isa == rv32) {
-                op = rv_op_c_fsw;
-            } else {
-                op = rv_op_c_sd;
-            }
-            break;
+        case 7: op = (isa == rv32) ? rv_op_c_fsw : rv_op_c_sd; break;
         }
         break;
     case 1:
@@ -973,13 +949,7 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             default: op = rv_op_c_addi; break;
             }
             break;
-        case 1:
-            if (isa == rv32) {
-                op = rv_op_c_jal;
-            } else {
-                op = rv_op_c_addiw;
-            }
-            break;
+        case 1: op = (isa == rv32) ? rv_op_c_jal : rv_op_c_addiw; break;
         case 2: op = rv_op_c_li; break;
         case 3:
             switch (((inst >> 7) & 0b11111)) {
@@ -1018,21 +988,9 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
         case 0:
             op = rv_op_c_slli;
             break;
-        case 1:
-            if (isa == rv128) {
-                op = rv_op_c_lqsp;
-            } else {
-                op = rv_op_c_fldsp;
-            }
-            break;
+        case 1: op = (isa == rv128) ? rv_op_c_lqsp : rv_op_c_fldsp; break;
         case 2: op = rv_op_c_lwsp; break;
-        case 3:
-            if (isa == rv32) {
-                op = rv_op_c_flwsp;
-            } else {
-                op = rv_op_c_ldsp;
-            }
-            break;
+        case 3: op = (isa == rv32) ? rv_op_c_flwsp : rv_op_c_ldsp; break;
         case 4:
             switch (((inst >> 12) & 0b1)) {
             case 0:
@@ -1054,21 +1012,9 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
                 break;
             }
             break;
-        case 5:
-            if (isa == rv128) {
-                op = rv_op_c_sqsp;
-            } else {
-                op = rv_op_c_fsdsp;
-            }
-            break;
+        case 5: op = (isa == rv128) ? rv_op_c_sqsp : rv_op_c_fsdsp; break;
         case 6: op = rv_op_c_swsp; break;
-        case 7:
-            if (isa == rv32) {
-                op = rv_op_c_fswsp;
-            } else {
-                op = rv_op_c_sdsp;
-            }
-            break;
+        case 7: op = (isa == rv32) ? rv_op_c_fswsp : rv_op_c_sdsp; break;
         }
         break;
     case 3:
