@@ -1992,96 +1992,24 @@ static bool check_constraints(rv_decode *dec, const rvc_constraint *c)
     uint8_t rd = dec->rd, rs1 = dec->rs1, rs2 = dec->rs2;
     while (*c != rvc_end) {
         switch (*c) {
-        case rvc_rd_eq_ra:
-            if (!(rd == 1)) {
-                return false;
-            }
-            break;
-        case rvc_rd_eq_x0:
-            if (!(rd == 0)) {
-                return false;
-            }
-            break;
-        case rvc_rs1_eq_x0:
-            if (!(rs1 == 0)) {
-                return false;
-            }
-            break;
-        case rvc_rs2_eq_x0:
-            if (!(rs2 == 0)) {
-                return false;
-            }
-            break;
-        case rvc_rs2_eq_rs1:
-            if (!(rs2 == rs1)) {
-                return false;
-            }
-            break;
-        case rvc_rs1_eq_ra:
-            if (!(rs1 == 1)) {
-                return false;
-            }
-            break;
-        case rvc_imm_eq_zero:
-            if (!(imm == 0)) {
-                return false;
-            }
-            break;
-        case rvc_imm_eq_n1:
-            if (!(imm == -1)) {
-                return false;
-            }
-            break;
-        case rvc_imm_eq_p1:
-            if (!(imm == 1)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0x001:
-            if (!(imm == 0x001)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0x002:
-            if (!(imm == 0x002)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0x003:
-            if (!(imm == 0x003)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0xc00:
-            if (!(imm == 0xc00)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0xc01:
-            if (!(imm == 0xc01)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0xc02:
-            if (!(imm == 0xc02)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0xc80:
-            if (!(imm == 0xc80)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0xc81:
-            if (!(imm == 0xc81)) {
-                return false;
-            }
-            break;
-        case rvc_csr_eq_0xc82:
-            if (!(imm == 0xc82)) {
-                return false;
-            }
-            break;
+        case rvc_rd_eq_ra: if (!(rd == 1)) return false; break;
+        case rvc_rd_eq_x0: if (!(rd == 0)) return false; break;
+        case rvc_rs1_eq_x0: if (!(rs1 == 0)) return false; break;
+        case rvc_rs2_eq_x0: if (!(rs2 == 0)) return false; break;
+        case rvc_rs2_eq_rs1: if (!(rs2 == rs1)) return false; break;
+        case rvc_rs1_eq_ra: if (!(rs1 == 1)) return false; break;
+        case rvc_imm_eq_zero: if (!(imm == 0)) return false; break;
+        case rvc_imm_eq_n1: if (!(imm == -1)) return false; break;
+        case rvc_imm_eq_p1: if (!(imm == 1)) return false; break;
+        case rvc_csr_eq_0x001: if (!(imm == 0x001)) return false; break;
+        case rvc_csr_eq_0x002: if (!(imm == 0x002)) return false; break;
+        case rvc_csr_eq_0x003: if (!(imm == 0x003)) return false; break;
+        case rvc_csr_eq_0xc00: if (!(imm == 0xc00)) return false; break;
+        case rvc_csr_eq_0xc01: if (!(imm == 0xc01)) return false; break;
+        case rvc_csr_eq_0xc02: if (!(imm == 0xc02)) return false; break;
+        case rvc_csr_eq_0xc80: if (!(imm == 0xc80)) return false; break;
+        case rvc_csr_eq_0xc81: if (!(imm == 0xc81)) return false; break;
+        case rvc_csr_eq_0xc82: if (!(imm == 0xc82)) return false; break;
         default: break;
         }
         c++;
