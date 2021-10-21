@@ -2255,9 +2255,7 @@ static void decode_inst_decompress(rv_decode *dec, rv_isa isa)
 
 void disasm_inst(char *buf, size_t buflen, rv_isa isa, uint64_t pc, rv_inst inst)
 {
-    rv_decode dec = { 0 };
-    dec.pc = pc;
-    dec.inst = inst;
+    rv_decode dec = { .pc = pc, .inst = inst };
     decode_inst_opcode(&dec, isa);
     decode_inst_operands(&dec);
     decode_inst_decompress(&dec, isa);
