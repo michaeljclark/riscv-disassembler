@@ -2251,6 +2251,18 @@ size_t inst_length(rv_inst inst)
          : 0;
 }
 
+/* instruction fetch */
+
+void inst_fetch(const uint8_t *data, rv_inst *instp, size_t *length)
+{
+    rv_inst inst = ((rv_inst)data[1] << 8) | ((rv_inst)data[0]);
+    size_t len = *length = inst_length(inst);
+    if (len >= 8) inst |= ((rv_inst)data[7] << 56) | ((rv_inst)data[6] << 48);
+    if (len >= 6) inst |= ((rv_inst)data[5] << 40) | ((rv_inst)data[4] << 32);
+    if (len >= 4) inst |= ((rv_inst)data[3] << 24) | ((rv_inst)data[2] << 16);
+    *instp = inst;
+}
+
 /* disassemble instruction */
 
 void disasm_inst(char *buf, size_t buflen, rv_isa isa, uint64_t pc, rv_inst inst)
