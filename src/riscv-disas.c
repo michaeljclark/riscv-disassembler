@@ -164,8 +164,8 @@ static const rv_comp_data rvcp_blt[] = {
 };
 
 static const rv_comp_data rvcp_bge[] = {
-    { rv_op_blez, rvcc_rs1_eq_x0 },
     { rv_op_bgez, rvcc_rs2_eq_x0 },
+    { rv_op_blez, rvcc_rs1_eq_x0 },
     { rv_op_ble, rvcc_last },
     { rv_op_illegal, NULL }
 };
@@ -2135,6 +2135,9 @@ static void decode_inst_decompress(rv_decode *dec, rv_isa isa)
 
 static bool check_constraints(rv_decode *dec, const rvc_constraint *c)
 {
+    if (c == rvcc_last)
+        return false;
+
     int32_t imm = dec->imm;
     uint8_t rd = dec->rd, rs1 = dec->rs1, rs2 = dec->rs2;
     while (*c != rvc_end) {
