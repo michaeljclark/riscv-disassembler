@@ -75,6 +75,7 @@ static const char rv_fmt_rd_rs1_rs2[]             = "O\t0,1,2";
 static const char rv_fmt_frd_rs1[]                = "O\t3,1";
 static const char rv_fmt_rd_frs1[]                = "O\t0,4";
 static const char rv_fmt_rd_frs1_frs2[]           = "O\t0,4,5";
+static const char rv_fmt_frd_frs1[]               = "O\t3,4";
 static const char rv_fmt_frd_frs1_frs2[]          = "O\t3,4,5";
 static const char rv_fmt_rm_frd_frs1[]            = "O\tr,3,4";
 static const char rv_fmt_rm_frd_rs1[]             = "O\tr,3,1";
@@ -163,8 +164,8 @@ static const rv_comp_data rvcp_blt[] = {
 };
 
 static const rv_comp_data rvcp_bge[] = {
-    { rv_op_blez, rvcc_rs1_eq_x0 },
     { rv_op_bgez, rvcc_rs2_eq_x0 },
+    { rv_op_blez, rvcc_rs1_eq_x0 },
     { rv_op_ble, rvcc_last },
     { rv_op_illegal, NULL }
 };
@@ -244,6 +245,21 @@ static const rv_comp_data rvcp_csrrs[] = {
 static const rv_comp_data rvcp_csrrwi[] = {
     { rv_op_fsrmi, rvcc_fsrmi },
     { rv_op_fsflagsi, rvcc_fsflagsi },
+    { rv_op_illegal, NULL }
+};
+
+static const rv_comp_data rvcp_fsgnj_h[] = {
+    { rv_op_fmv_h, rvcc_rs2_eq_rs1 },
+    { rv_op_illegal, NULL }
+};
+
+static const rv_comp_data rvcp_fsgnjn_h[] = {
+    { rv_op_fneg_h, rvcc_rs2_eq_rs1 },
+    { rv_op_illegal, NULL }
+};
+
+static const rv_comp_data rvcp_fsgnjx_h[] = {
+    { rv_op_fabs_h, rvcc_rs2_eq_rs1 },
     { rv_op_illegal, NULL }
 };
 
@@ -426,6 +442,45 @@ const rv_opcode_data opcode_data[] = {
     { "csrrwi", rv_codec_i_csr, rv_fmt_rd_csr_zimm, rvcp_csrrwi, 0, 0, 0 },
     { "csrrsi", rv_codec_i_csr, rv_fmt_rd_csr_zimm, NULL, 0, 0, 0 },
     { "csrrci", rv_codec_i_csr, rv_fmt_rd_csr_zimm, NULL, 0, 0, 0 },
+    { "flh", rv_codec_i, rv_fmt_frd_offset_rs1, NULL, 0, 0, 0 },
+    { "fsh", rv_codec_s, rv_fmt_frs2_offset_rs1, NULL, 0, 0, 0 },
+    { "fmadd.h", rv_codec_r4_m, rv_fmt_rm_frd_frs1_frs2_frs3, NULL, 0, 0, 0 },
+    { "fmsub.h", rv_codec_r4_m, rv_fmt_rm_frd_frs1_frs2_frs3, NULL, 0, 0, 0 },
+    { "fnmsub.h", rv_codec_r4_m, rv_fmt_rm_frd_frs1_frs2_frs3, NULL, 0, 0, 0 },
+    { "fnmadd.h", rv_codec_r4_m, rv_fmt_rm_frd_frs1_frs2_frs3, NULL, 0, 0, 0 },
+    { "fadd.h", rv_codec_r_m, rv_fmt_rm_frd_frs1_frs2, NULL, 0, 0, 0 },
+    { "fsub.h", rv_codec_r_m, rv_fmt_rm_frd_frs1_frs2, NULL, 0, 0, 0 },
+    { "fmul.h", rv_codec_r_m, rv_fmt_rm_frd_frs1_frs2, NULL, 0, 0, 0 },
+    { "fdiv.h", rv_codec_r_m, rv_fmt_rm_frd_frs1_frs2, NULL, 0, 0, 0 },
+    { "fsgnj.h", rv_codec_r, rv_fmt_frd_frs1_frs2, rvcp_fsgnj_h, 0, 0, 0 },
+    { "fsgnjn.h", rv_codec_r, rv_fmt_frd_frs1_frs2, rvcp_fsgnjn_h, 0, 0, 0 },
+    { "fsgnjx.h", rv_codec_r, rv_fmt_frd_frs1_frs2, rvcp_fsgnjx_h, 0, 0, 0 },
+    { "fmin.h", rv_codec_r, rv_fmt_frd_frs1_frs2, NULL, 0, 0, 0 },
+    { "fmax.h", rv_codec_r, rv_fmt_frd_frs1_frs2, NULL, 0, 0, 0 },
+    { "fsqrt.h", rv_codec_r_m, rv_fmt_rm_frd_frs1, NULL, 0, 0, 0 },
+    { "fle.h", rv_codec_r, rv_fmt_rd_frs1_frs2, NULL, 0, 0, 0 },
+    { "flt.h", rv_codec_r, rv_fmt_rd_frs1_frs2, NULL, 0, 0, 0 },
+    { "feq.h", rv_codec_r, rv_fmt_rd_frs1_frs2, NULL, 0, 0, 0 },
+    { "fcvt.w.h", rv_codec_r_m, rv_fmt_rm_rd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.wu.h", rv_codec_r_m, rv_fmt_rm_rd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.h.w", rv_codec_r_m, rv_fmt_rm_frd_rs1, NULL, 0, 0, 0 },
+    { "fcvt.h.wu", rv_codec_r_m, rv_fmt_rm_frd_rs1, NULL, 0, 0, 0 },
+    { "fclass.h", rv_codec_r, rv_fmt_rd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.l.h", rv_codec_r_m, rv_fmt_rm_rd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.lu.h", rv_codec_r_m, rv_fmt_rm_rd_frs1, NULL, 0, 0, 0 },
+    { "fmv.x.h", rv_codec_r, rv_fmt_rd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.h.l", rv_codec_r_m, rv_fmt_rm_frd_rs1, NULL, 0, 0, 0 },
+    { "fcvt.h.lu", rv_codec_r_m, rv_fmt_rm_frd_rs1, NULL, 0, 0, 0 },
+    { "fmv.h.x", rv_codec_r, rv_fmt_frd_rs1, NULL, 0, 0, 0 },
+    { "fcvt.s.h", rv_codec_r_m, rv_fmt_rm_frd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.h.s", rv_codec_r_m, rv_fmt_rm_frd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.d.h", rv_codec_r_m, rv_fmt_rm_frd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.h.d", rv_codec_r_m, rv_fmt_rm_frd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.q.h", rv_codec_r_m, rv_fmt_rm_frd_frs1, NULL, 0, 0, 0 },
+    { "fcvt.h.q", rv_codec_r_m, rv_fmt_rm_frd_frs1, NULL, 0, 0, 0 },
+    { "fmv.h", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fabs.h", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fneg.h", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
     { "flw", rv_codec_i, rv_fmt_frd_offset_rs1, NULL, 0, 0, 0 },
     { "fsw", rv_codec_s, rv_fmt_frs2_offset_rs1, NULL, 0, 0, 0 },
     { "fmadd.s", rv_codec_r4_m, rv_fmt_rm_frd_frs1_frs2_frs3, NULL, 0, 0, 0 },
@@ -578,15 +633,15 @@ const rv_opcode_data opcode_data[] = {
     { "snez", rv_codec_r, rv_fmt_rd_rs2, NULL, 0, 0, 0 },
     { "sltz", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
     { "sgtz", rv_codec_r, rv_fmt_rd_rs2, NULL, 0, 0, 0 },
-    { "fmv.s", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fabs.s", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fneg.s", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fmv.d", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fabs.d", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fneg.d", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fmv.q", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fabs.q", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
-    { "fneg.q", rv_codec_r, rv_fmt_rd_rs1, NULL, 0, 0, 0 },
+    { "fmv.s", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fabs.s", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fneg.s", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fmv.d", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fabs.d", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fneg.d", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fmv.q", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fabs.q", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
+    { "fneg.q", rv_codec_r, rv_fmt_frd_frs1, NULL, 0, 0, 0 },
     { "beqz", rv_codec_sb, rv_fmt_rs1_offset, NULL, 0, 0, 0 },
     { "bnez", rv_codec_sb, rv_fmt_rs1_offset, NULL, 0, 0, 0 },
     { "blez", rv_codec_sb, rv_fmt_rs2_offset, NULL, 0, 0, 0 },
@@ -1012,6 +1067,7 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             break;
         case 1:
             switch (((inst >> 12) & 0b111)) {
+            case 1: op = rv_op_flh; break;
             case 2: op = rv_op_flw; break;
             case 3: op = rv_op_fld; break;
             case 4: op = rv_op_flq; break;
@@ -1073,6 +1129,7 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             break;
         case 9:
             switch (((inst >> 12) & 0b111)) {
+            case 1: op = rv_op_fsh; break;
             case 2: op = rv_op_fsw; break;
             case 3: op = rv_op_fsd; break;
             case 4: op = rv_op_fsq; break;
@@ -1168,6 +1225,7 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             switch (((inst >> 25) & 0b11)) {
             case 0: op = rv_op_fmadd_s; break;
             case 1: op = rv_op_fmadd_d; break;
+            case 2: op = rv_op_fmadd_h; break;
             case 3: op = rv_op_fmadd_q; break;
             }
             break;
@@ -1175,6 +1233,7 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             switch (((inst >> 25) & 0b11)) {
             case 0: op = rv_op_fmsub_s; break;
             case 1: op = rv_op_fmsub_d; break;
+            case 2: op = rv_op_fmsub_h; break;
             case 3: op = rv_op_fmsub_q; break;
             }
             break;
@@ -1182,6 +1241,7 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             switch (((inst >> 25) & 0b11)) {
             case 0: op = rv_op_fnmsub_s; break;
             case 1: op = rv_op_fnmsub_d; break;
+            case 2: op = rv_op_fnmsub_h; break;
             case 3: op = rv_op_fnmsub_q; break;
             }
             break;
@@ -1189,6 +1249,7 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             switch (((inst >> 25) & 0b11)) {
             case 0: op = rv_op_fnmadd_s; break;
             case 1: op = rv_op_fnmadd_d; break;
+            case 2: op = rv_op_fnmadd_h; break;
             case 3: op = rv_op_fnmadd_q; break;
             }
             break;
@@ -1196,15 +1257,19 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             switch (((inst >> 25) & 0b1111111)) {
             case 0: op = rv_op_fadd_s; break;
             case 1: op = rv_op_fadd_d; break;
+            case 2: op = rv_op_fadd_h; break;
             case 3: op = rv_op_fadd_q; break;
             case 4: op = rv_op_fsub_s; break;
             case 5: op = rv_op_fsub_d; break;
+            case 6: op = rv_op_fsub_h; break;
             case 7: op = rv_op_fsub_q; break;
             case 8: op = rv_op_fmul_s; break;
             case 9: op = rv_op_fmul_d; break;
+            case 10: op = rv_op_fmul_h; break;
             case 11: op = rv_op_fmul_q; break;
             case 12: op = rv_op_fdiv_s; break;
             case 13: op = rv_op_fdiv_d; break;
+            case 14: op = rv_op_fdiv_h; break;
             case 15: op = rv_op_fdiv_q; break;
             case 16:
                 switch (((inst >> 12) & 0b111)) {
@@ -1218,6 +1283,13 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
                 case 0: op = rv_op_fsgnj_d; break;
                 case 1: op = rv_op_fsgnjn_d; break;
                 case 2: op = rv_op_fsgnjx_d; break;
+                }
+                break;
+            case 18:
+                switch (((inst >> 12) & 0b111)) {
+                case 0: op = rv_op_fsgnj_h; break;
+                case 1: op = rv_op_fsgnjn_h; break;
+                case 2: op = rv_op_fsgnjx_h; break;
                 }
                 break;
             case 19:
@@ -1239,6 +1311,12 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
                 case 1: op = rv_op_fmax_d; break;
                 }
                 break;
+            case 22:
+                switch (((inst >> 12) & 0b111)) {
+                case 0: op = rv_op_fmin_h; break;
+                case 1: op = rv_op_fmax_h; break;
+                }
+                break;
             case 23:
                 switch (((inst >> 12) & 0b111)) {
                 case 0: op = rv_op_fmin_q; break;
@@ -1248,19 +1326,29 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             case 32:
                 switch (((inst >> 20) & 0b11111)) {
                 case 1: op = rv_op_fcvt_s_d; break;
+                case 2: op = rv_op_fcvt_s_h; break;
                 case 3: op = rv_op_fcvt_s_q; break;
                 }
                 break;
             case 33:
                 switch (((inst >> 20) & 0b11111)) {
                 case 0: op = rv_op_fcvt_d_s; break;
+                case 2: op = rv_op_fcvt_d_h; break;
                 case 3: op = rv_op_fcvt_d_q; break;
+                }
+                break;
+            case 34:
+                switch (((inst >> 20) & 0b11111)) {
+                case 0: op = rv_op_fcvt_h_s; break;
+                case 1: op = rv_op_fcvt_h_d; break;
+                case 3: op = rv_op_fcvt_h_q; break;
                 }
                 break;
             case 35:
                 switch (((inst >> 20) & 0b11111)) {
                 case 0: op = rv_op_fcvt_q_s; break;
                 case 1: op = rv_op_fcvt_q_d; break;
+                case 2: op = rv_op_fcvt_q_h; break;
                 }
                 break;
             case 44:
@@ -1271,6 +1359,11 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             case 45:
                 switch (((inst >> 20) & 0b11111)) {
                 case 0: op = rv_op_fsqrt_d; break;
+                }
+                break;
+            case 46:
+                switch (((inst >> 20) & 0b11111)) {
+                case 0: op = rv_op_fsqrt_h; break;
                 }
                 break;
             case 47:
@@ -1290,6 +1383,13 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
                 case 0: op = rv_op_fle_d; break;
                 case 1: op = rv_op_flt_d; break;
                 case 2: op = rv_op_feq_d; break;
+                }
+                break;
+            case 82:
+                switch (((inst >> 12) & 0b111)) {
+                case 0: op = rv_op_fle_h; break;
+                case 1: op = rv_op_flt_h; break;
+                case 2: op = rv_op_feq_h; break;
                 }
                 break;
             case 83:
@@ -1313,6 +1413,14 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
                 case 1: op = rv_op_fcvt_wu_d; break;
                 case 2: op = rv_op_fcvt_l_d; break;
                 case 3: op = rv_op_fcvt_lu_d; break;
+                }
+                break;
+            case 98:
+                switch (((inst >> 20) & 0b11111)) {
+                case 0: op = rv_op_fcvt_w_h; break;
+                case 1: op = rv_op_fcvt_wu_h; break;
+                case 2: op = rv_op_fcvt_l_h; break;
+                case 3: op = rv_op_fcvt_lu_h; break;
                 }
                 break;
             case 99:
@@ -1339,6 +1447,14 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
                 case 3: op = rv_op_fcvt_d_lu; break;
                 }
                 break;
+            case 106:
+                switch (((inst >> 20) & 0b11111)) {
+                case 0: op = rv_op_fcvt_h_w; break;
+                case 1: op = rv_op_fcvt_h_wu; break;
+                case 2: op = rv_op_fcvt_h_l; break;
+                case 3: op = rv_op_fcvt_h_lu; break;
+                }
+                break;
             case 107:
                 switch (((inst >> 20) & 0b11111)) {
                 case 0: op = rv_op_fcvt_q_w; break;
@@ -1359,6 +1475,12 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
                 case 1: op = rv_op_fclass_d; break;
                 }
                 break;
+            case 114:
+                switch (((inst >> 17) & 0b11111000) | ((inst >> 12) & 0b00000111)) {
+                case 0: op = rv_op_fmv_x_h; break;
+                case 1: op = rv_op_fclass_h; break;
+                }
+                break;
             case 115:
                 switch (((inst >> 17) & 0b11111000) | ((inst >> 12) & 0b00000111)) {
                 case 0: op = rv_op_fmv_x_q; break;
@@ -1373,6 +1495,11 @@ static void decode_inst_opcode(rv_decode *dec, rv_isa isa)
             case 121:
                 switch (((inst >> 17) & 0b11111000) | ((inst >> 12) & 0b00000111)) {
                 case 0: op = rv_op_fmv_d_x; break;
+                }
+                break;
+            case 122:
+                switch (((inst >> 17) & 0b11111000) | ((inst >> 12) & 0b00000111)) {
+                case 0: op = rv_op_fmv_h_x; break;
                 }
                 break;
             case 123:
@@ -2008,6 +2135,9 @@ static void decode_inst_decompress(rv_decode *dec, rv_isa isa)
 
 static bool check_constraints(rv_decode *dec, const rvc_constraint *c)
 {
+    if (c == rvcc_last)
+        return false;
+
     int32_t imm = dec->imm;
     uint8_t rd = dec->rd, rs1 = dec->rs1, rs2 = dec->rs2;
     while (*c != rvc_end) {
@@ -2057,12 +2187,11 @@ static void decode_inst_lift_pseudo(rv_decode *dec)
 
 /* format instruction */
 
-static void append(char *s1, const char *s2, ssize_t n)
+static char *append(char *buf, const char *src, const char *end)
 {
-    ssize_t l1 = strlen(s1);
-    if (n - l1 - 1 > 0) {
-        strncat(s1, s2, n - l1);
-    }
+    while (buf < end && *src)
+	*buf++ = *src++;
+    return buf;
 }
 
 #define INST_FMT_2 "%04" PRIx64 "              "
@@ -2074,20 +2203,22 @@ static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *
 {
     char tmp[64];
     const char *fmt;
+    const char *start = buf;
+    const char *end = &buf[buflen];
 
     size_t len = inst_length(dec->inst);
     switch (len) {
     case 2:
-        snprintf(buf, buflen, INST_FMT_2, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_2, dec->inst);
         break;
     case 4:
-        snprintf(buf, buflen, INST_FMT_4, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_4, dec->inst);
         break;
     case 6:
-        snprintf(buf, buflen, INST_FMT_6, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_6, dec->inst);
         break;
     default:
-        snprintf(buf, buflen, INST_FMT_8, dec->inst);
+        buf += snprintf(buf, buflen, INST_FMT_8, dec->inst);
         break;
     }
 
@@ -2095,132 +2226,132 @@ static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *
     while (*fmt) {
         switch (*fmt) {
         case 'O':
-            append(buf, opcode_data[dec->op].name, buflen);
+            buf = append(buf, opcode_data[dec->op].name, end);
             break;
         case '(':
-            append(buf, "(", buflen);
+            buf = append(buf, "(", end);
             break;
         case ',':
-            append(buf, ",", buflen);
+            buf = append(buf, ",", end);
             break;
         case ')':
-            append(buf, ")", buflen);
+            buf = append(buf, ")", end);
             break;
         case '0':
-            append(buf, rv_ireg_name_sym[dec->rd], buflen);
+            buf = append(buf, rv_ireg_name_sym[dec->rd], end);
             break;
         case '1':
-            append(buf, rv_ireg_name_sym[dec->rs1], buflen);
+            buf = append(buf, rv_ireg_name_sym[dec->rs1], end);
             break;
         case '2':
-            append(buf, rv_ireg_name_sym[dec->rs2], buflen);
+            buf = append(buf, rv_ireg_name_sym[dec->rs2], end);
             break;
         case '3':
-            append(buf, rv_freg_name_sym[dec->rd], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rd], end);
             break;
         case '4':
-            append(buf, rv_freg_name_sym[dec->rs1], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rs1], end);
             break;
         case '5':
-            append(buf, rv_freg_name_sym[dec->rs2], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rs2], end);
             break;
         case '6':
-            append(buf, rv_freg_name_sym[dec->rs3], buflen);
+            buf = append(buf, rv_freg_name_sym[dec->rs3], end);
             break;
         case '7':
             snprintf(tmp, sizeof(tmp), "%d", dec->rs1);
-            append(buf, tmp, buflen);
+            buf = append(buf, tmp, end);
             break;
         case 'i':
             snprintf(tmp, sizeof(tmp), "%d", dec->imm);
-            append(buf, tmp, buflen);
+            buf = append(buf, tmp, end);
             break;
         case 'o':
             snprintf(tmp, sizeof(tmp), "%d", dec->imm);
-            append(buf, tmp, buflen);
-            while (strlen(buf) < tab * 2) {
-                append(buf, " ", buflen);
+            buf = append(buf, tmp, end);
+            while (buf < &start[2*tab]) {
+                *buf++ = ' ';
             }
             snprintf(tmp, sizeof(tmp), "# 0x%" PRIx64,
                 dec->pc + dec->imm);
-            append(buf, tmp, buflen);
+            buf = append(buf, tmp, end);
             break;
         case 'c': {
             const char *name = csr_name(dec->imm & 0xfff);
             if (name) {
-                append(buf, name, buflen);
+                buf = append(buf, name, end);
             } else {
                 snprintf(tmp, sizeof(tmp), "0x%03x", dec->imm & 0xfff);
-                append(buf, tmp, buflen);
+                buf = append(buf, tmp, end);
             }
             break;
         }
         case 'r':
             switch (dec->rm) {
             case rv_rm_rne:
-                append(buf, "rne", buflen);
+                buf = append(buf, "rne", end);
                 break;
             case rv_rm_rtz:
-                append(buf, "rtz", buflen);
+                buf = append(buf, "rtz", end);
                 break;
             case rv_rm_rdn:
-                append(buf, "rdn", buflen);
+                buf = append(buf, "rdn", end);
                 break;
             case rv_rm_rup:
-                append(buf, "rup", buflen);
+                buf = append(buf, "rup", end);
                 break;
             case rv_rm_rmm:
-                append(buf, "rmm", buflen);
+                buf = append(buf, "rmm", end);
                 break;
             case rv_rm_dyn:
-                append(buf, "dyn", buflen);
+                buf = append(buf, "dyn", end);
                 break;
             default:
-                append(buf, "inv", buflen);
+                buf = append(buf, "inv", end);
                 break;
             }
             break;
         case 'p':
             if (dec->pred & rv_fence_i) {
-                append(buf, "i", buflen);
+                buf = append(buf, "i", end);
             }
             if (dec->pred & rv_fence_o) {
-                append(buf, "o", buflen);
+                buf = append(buf, "o", end);
             }
             if (dec->pred & rv_fence_r) {
-                append(buf, "r", buflen);
+                buf = append(buf, "r", end);
             }
             if (dec->pred & rv_fence_w) {
-                append(buf, "w", buflen);
+                buf = append(buf, "w", end);
             }
             break;
         case 's':
             if (dec->succ & rv_fence_i) {
-                append(buf, "i", buflen);
+                buf = append(buf, "i", end);
             }
             if (dec->succ & rv_fence_o) {
-                append(buf, "o", buflen);
+                buf = append(buf, "o", end);
             }
             if (dec->succ & rv_fence_r) {
-                append(buf, "r", buflen);
+                buf = append(buf, "r", end);
             }
             if (dec->succ & rv_fence_w) {
-                append(buf, "w", buflen);
+                buf = append(buf, "w", end);
             }
             break;
         case '\t':
-            while (strlen(buf) < tab) {
-                append(buf, " ", buflen);
+            while (buf < &start[tab]) {
+                *buf++ = ' ';
             }
             break;
         case 'A':
             if (dec->aq) {
-                append(buf, ".aq", buflen);
+                buf = append(buf, ".aq", end);
             }
             break;
         case 'R':
             if (dec->rl) {
-                append(buf, ".rl", buflen);
+                buf = append(buf, ".rl", end);
             }
             break;
         default:
@@ -2228,6 +2359,7 @@ static void decode_inst_format(char *buf, size_t buflen, size_t tab, rv_decode *
         }
         fmt++;
     }
+    *buf = '\0';
 }
 
 /* instruction length */
